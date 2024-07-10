@@ -4,14 +4,15 @@ import edu.raddan.annotation.Table;
 import edu.raddan.entity.Entity;
 import org.reflections.Reflections;
 
-import java.io.*;
+import java.io.File;
 import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SQLHandler {
 
@@ -49,20 +50,6 @@ public class SQLHandler {
         String path = new File(dbPath.getFile()).getAbsolutePath();
         String url = "jdbc:sqlite:" + path;
         return DriverManager.getConnection(url);
-    }
-
-    public static void initializeTables(Connection connection) throws SQLException, IOException {
-        InputStream inputStream = SQLHandler.class.getClassLoader().getResourceAsStream("sql/dbInit.sql");
-        if (inputStream == null)
-            throw new IllegalStateException("SQL script not found!");
-
-        String sql = new BufferedReader(new InputStreamReader(inputStream))
-                .lines()
-                .collect(Collectors.joining("\n"));
-
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(sql);
-        }
     }
 
 }

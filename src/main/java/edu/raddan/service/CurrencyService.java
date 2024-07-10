@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
@@ -32,4 +33,12 @@ public class CurrencyService {
         }
     }
 
+    public List<Currency> getAllCurrencies(HttpServletRequest req, HttpServletResponse res) {
+        try {
+            return currencyRepository.findAll();
+        } catch (SQLException e) {
+            System.err.println("Fail: " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 }
