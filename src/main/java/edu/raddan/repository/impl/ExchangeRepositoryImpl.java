@@ -40,7 +40,8 @@ public class ExchangeRepositoryImpl implements ExchangeRepository {
     }
 
     @Override
-    public void delete(ExchangeRate entity) throws SQLException {
+    public void delete(Long id) throws SQLException {
 
     }
+
 }

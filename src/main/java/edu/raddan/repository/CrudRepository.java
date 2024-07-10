@@ -6,8 +6,12 @@ import java.util.Optional;
 
 public interface CrudRepository<T> {
     Optional<T> findById(Long id) throws SQLException;
+
     List<T> findAll() throws SQLException;
+
     Long save(T entity) throws SQLException;
+
     void update(T entity) throws SQLException;
-    void delete(T entity) throws SQLException;
+
+    void delete(Long id) throws SQLException;
 }
