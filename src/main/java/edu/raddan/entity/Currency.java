@@ -1,26 +1,20 @@
 package edu.raddan.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import edu.raddan.annotation.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@AllArgsConstructor
+@Table(name = "currencies")
+@Getter @Setter
 @NoArgsConstructor
-public class Currency {
+@AllArgsConstructor
+public class Currency extends Entity {
+
     private Long id;
-
     private String code;
-
-    @JsonProperty("name")
     private String fullName;
-
     private String sign;
 
-    public Currency(String code, String fullName, String sign) {
-        this.code = code;
-        this.fullName = fullName;
-        this.sign = sign;
-    }
 }

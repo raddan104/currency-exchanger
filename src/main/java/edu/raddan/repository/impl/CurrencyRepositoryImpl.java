@@ -1,127 +1,63 @@
 package edu.raddan.repository.impl;
 
-import edu.raddan.db.DatabaseHandler;
+import edu.raddan.db.SQLHandler;
 import edu.raddan.entity.Currency;
 import edu.raddan.repository.CurrencyRepository;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 public class CurrencyRepositoryImpl implements CurrencyRepository {
 
-    private final DatabaseHandler databaseHandler = DatabaseHandler.getInstance();
-
     @Override
-    public Optional<Currency> findByCode(String code) throws SQLException {
-        final String query = "SELECT * FROM currencies WHERE code = ?";
-
-        try (Connection connection = databaseHandler.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(query);
+    public Optional<Currency> findByCode(String code) {
+        final String query = "SELECT * FROM currencies WHERE Code = ?";
+        try (Connection connection = SQLHandler.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, code);
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    Currency currency = new Currency();
+                    currency.setId(resultSet.getLong("Id"));
+                    currency.setCode(resultSet.getString("Code"));
+                    currency.setFullName(resultSet.getString("FullName"));
+                    currency.setSign(resultSet.getString("Sign"));
 
-            if (!resultSet.next()) {
-                return Optional.empty();
+                    return Optional.of(currency);
+                }
             }
-
-            return Optional.of(getCurrency(resultSet));
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
         }
-    }
-
-    @Override
-    public List<Currency> findAll() throws SQLException {
-        final String query = "SELECT * FROM currencies";
-
-        try (Connection connection = databaseHandler.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-
-            List<Currency> currencies = new ArrayList<>();
-            while (resultSet.next())
-                currencies.add(getCurrency(resultSet));
-
-            return currencies;
-        }
+        return Optional.empty();
     }
 
     @Override
     public Optional<Currency> findById(Long id) throws SQLException {
-        final String query = "SELECT * FROM currencies WHERE id = ?";
+        return Optional.empty();
+    }
 
-        try (Connection connection = databaseHandler.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setLong(1, id);
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-
-            if (!resultSet.next())
-                return Optional.empty();
-
-            return Optional.of(getCurrency(resultSet));
-        }
+    @Override
+    public List<Currency> findAll() throws SQLException {
+        return List.of();
     }
 
     @Override
     public Long save(Currency entity) throws SQLException {
-        final String query = "INSERT INTO currencies (code, fullname, sign) VALUES (?, ?, ?)";
-
-        try (Connection connection = databaseHandler.getConnection()) {
-            connection.setAutoCommit(false);
-            PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-
-            statement.setString(1, entity.getCode());
-            statement.setString(2, entity.getFullName());
-            statement.setString(3, entity.getSign());
-
-            statement.execute();
-
-            ResultSet savedCurrency = statement.getGeneratedKeys();
-            savedCurrency.next();
-            long savedId = savedCurrency.getLong("id");
-
-            connection.commit();
-
-            return savedId;
-        }
+        return 0L;
     }
 
     @Override
     public void update(Currency entity) throws SQLException {
-        final String query = "UPDATE currencies SET (code, fullname, sign) = (?, ?, ?) WHERE id = ?";
 
-        try (Connection connection = databaseHandler.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(query);
-
-            statement.setString(1, entity.getCode());
-            statement.setString(2, entity.getFullName());
-            statement.setString(3, entity.getSign());
-            statement.setLong(4, entity.getId());
-
-            statement.execute();
-        }
     }
 
     @Override
-    public void delete(Long id) throws SQLException {
-        final String query = "DELETE FROM currencies WHERE id = ?";
+    public void delete(Currency entity) throws SQLException {
 
-        try (Connection connection = databaseHandler.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setLong(1, id);
-            statement.execute();
-        }
-    }
-
-    private static Currency getCurrency(ResultSet resultSet) throws SQLException {
-        return new Currency(
-                resultSet.getLong("id"),
-                resultSet.getString("code"),
-                resultSet.getString("fullname"),
-                resultSet.getString("sign")
-        );
     }
 }
