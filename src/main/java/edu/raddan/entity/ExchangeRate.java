@@ -19,4 +19,9 @@ public class ExchangeRate extends Entity {
     private Currency targetCurrency;
     private BigDecimal rate;
 
+    public ExchangeRate(Currency currency, Currency currency1, BigDecimal rate) {
+        this.baseCurrency = currency;
+        this.targetCurrency = currency1;
+        this.rate = rate;
+    }
 }
